@@ -1,0 +1,101 @@
+/* color
+배경 #111111
+서브 배경 #222222
+경계 #43494C
+폰트 #D3D3D3
+hover #333333
+visited #909090 */
+
+/* .container {
+    width: 977px;
+    height: 100vh;
+    background-color: #222222;
+    border: 1px solid #43494C;
+
+    margin: 0 auto;
+    padding: 0;
+} */
+
+.head {
+    max-width: 1000px;
+  }
+
+.content {
+    max-width: 1000px;
+}
+
+.board-title {
+    width: 100%;
+    height: 100px;
+    color: #D3D3D3;
+    background-color: #222222;
+    border-bottom: 1px solid #43494C;
+    position: relative;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    margin: 0;
+}
+
+.main {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    margin-top: -40px;
+    font-size: 50px;
+}
+
+.main a{
+    color: #D3D3D3;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 10px;
+}
+
+.board-title .main a {
+    text-decoration: none;
+}
+
+
+.article {
+    padding: 20px;
+    height: 780px;
+    background-color: #222222;
+}
+
+.body {
+    background-color: #111111;
+}
+
+#forms {
+    background-color: #222222;
+    color: #D3D3D3;
+    border: 0;
+    font-size: 20px;
+    padding: 5px;
+    margin: 0 auto;
+    border: 1px solid #43494C;
+    float: right;
+}
+
+#forms:hover {
+    background-color: #333333;
+    cursor: pointer;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+}
+
+.article select {
+    margin-top: 10px;
+    height: 40px;
+    columns: black;
+}
+
+.article input {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    height: 40px;
+    background-color: white;
+    color: black;
+}

@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% block title %}{{ context.title }}{% endblock %}
+
+{% block extra_head %}
+    {% load static %}
+        <link rel="stylesheet" href="{% static 'board/read_style.css' %}"/>
+{% endblock %}
+
+{% block content %}
+<div class="content-container">
+    <div class="board-title">
+        <div class="main"><a href="/board/category/1/">게시판</a></div>
+
+        {% if user.is_authenticated %}
+            {% if user.id == context.user.id %}
+            <div class="update"><a href="/board/update/{{context.id}}">수정</a></div>
+            <form action="/board/delete/" method='post'>
+                <div class="delete">
+                    <input type="hidden" name="id" value={{context.id}}>
+                    <input id="forms" type="submit" value="삭제">
+                </div>
+            </form>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <div class="board-article">
+        <div class="title-row">
+            <div class="post-title">
+                <div class="title">{{ context.title }}</div>
+            </div>
+        </div>
+        <div class="title-sub-row">
+            <div class="author">작성자: {{ context.user }}</div>
+            <div class="view">조회수: {{ context.counting }}</div>
+            <div class="date">{{ context.date|date:"Y-m-d H:i" }}</div>
+        </div>
+        
+        <div class="article">
+            <div class="article-body">
+                {{ context.body | safe}}
+            </div>
+        </div>
+
+        <div class="post-like">
+            <button class="post-like-btn" onclick="likePost({{ context.id }})">
+                <img src="/static/img/like2.png"/>
+                <p>추천수: <span id="like-count-{{ context.id }}">{{ context.likes }}</span></p>
+            </button>
+        </div>
+
+        <div class="comment-container">
+            <div class="comment-container-head">
+                <p>댓글 [{{ comment_len }}]</p>
+            </div>
+            
+            <div class="comment-list">
+                <div class="comment-container-body">
+                    {% for comment in comments %}
+                        <div class="comment">
+                            <div class="comment-head">
+                                <div class="comment-username">{{ comment.user }}</div>
+                                <div class="comment-date">{{ comment.comment_datetime|date:"Y-m-d H:i" }}</div>
+                                <button class="reply-btn" id="reply_btn_{{ comment.id }}" data-target="reply-form-{{ comment.id }}">| 답글</button>
+                            </div>
+                            <div class="comment-body">
+                                <div class="comment-comment">{{ comment.comment_body }}</div>
+                            </div>
+                        </div>
+                        <div class="reply-form" id="reply-form-{{ comment.id }}"></div>
+
+                        {% for reply in comment.replies.all %}
+                            <div class="reply-row">
+                                <div class="reply-img">
+                                    <img src="/static/img/next.png"/>
+                                </div>
+                                
+                                <div class="comment reply">
+                                    <div class="comment-head">
+                                        <div class="comment-username">{{ reply.user }}</div>
+                                        <div class="comment-date">{{ reply.comment_datetime|date:"Y-m-d H:i" }}</div>
+                                        <button class="reply-btn" id="reply_btn_{{ comment.id }}" data-target="reply-form-{{ reply.id }}">| 답글</button>
+                                    </div>
+                                    <div class="comment-body">
+                                        <div class="comment-comment">{{ reply.comment_body }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="reply-form" id="reply-form-{{ reply.id }}"></div>
+                            {% endfor %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            {% if user.is_authenticated %}
+                <form class="comment-form" method="post">
+                    {% csrf_token %}
+                    <div class="comment-form-head">
+                        <p>댓글 작성하기</p>
+                        <button type="submit" class="comment-input-btn">작성</button>
+                    </div>
+                    <textarea class="comment-input" name="comment" placeholder="댓글 입력"></textarea>
+                </form>
+            {% else %}
+                <div class="need-login">댓글은 로그인 이후 이용하실 수 있습니다</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    function likePost(postId) {
+        fetch(`/board/${postId}/like/`, { 
+            method: 'POST', 
+            headers: { 
+                'X-CSRFToken': '{{ csrf_token }}' 
+            } 
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(error => { throw error });
+            }
+            return response.json();
+        })
+        .then(data => {
+            document.getElementById(`like-count-${postId}`).innerText = data.likes;
+            alert('추천 완료!');
+        })
+        .catch(error => {
+            if (error.error) {
+                alert(error.error);
+            } else {
+                console.error('오류:', error);
+            }
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function(){
+        const replyBtn = document.querySelectorAll('.reply-btn');
+
+        replyBtn.forEach(button => {
+            button.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const targetDiv = document.getElementById(targetId);
+                const commentId = button.getAttribute('id').split('_')[2];
+                
+                document.querySelectorAll('.reply-form').forEach(form => {
+                    form.innerHTML = '';
+                })
+                
+                if (!targetDiv.querySelector('form')) {
+                    const forms = `
+                    {% if user.is_authenticated %}
+                        <form class="comment-form replyforms" method="post">
+                            {% csrf_token %}
+                            <div class="comment-form-head">
+                                <p>답글 작성하기</p>
+                                <button type="submit" class="comment-input-btn">작성</button>
+                            </div>
+                            <input type="hidden" name="parent_comment_id" value="${commentId}"/>
+                            <textarea class="comment-input" name="comment" placeholder="댓글 입력"></textarea>
+                        </form>
+                    {% else %}
+                        <div class="need-login">답글은 로그인 이후 이용하실 수 있습니다</div>
+                    {% endif %}
+                    `;
+
+                    targetDiv.innerHTML = forms;
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

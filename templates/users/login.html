@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>로그인</title>
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'users/login_style.css' %}"/>
+    </head>
+
+    <body>
+        <div class="container">
+            <h>AI chat 로그인</h>
+                {% if form.non_field_errors %}
+                    {% for error in form.non_field_errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                {% endif %}
+            <form class="forms" method="post" action="{% url 'users:login' %}">
+                {% csrf_token %}
+                <p>아이디</p>
+                <div class="form">{{ form.username }}</div>
+                <p>비밀번호</p>
+                <div class="form">{{ form.password }}</div>
+                <button class="submit" type="submit">로그인</button>
+            </form>
+        </div>
+    </body>
+</html>

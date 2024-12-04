@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block title %}Aichat main{% endblock %}
+
+{% block extra_head %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'main/main_style.css' %}"/>
+{% endblock %}
+
+{% block content %}
+    <div class="main-container">
+        <a class="bots-container" href="/bot/lists">
+                <div class="bots-head">
+                    <p>봇 리스트</p>
+                    <p>></p>
+                </div>
+
+                <div class="bot-container">
+                    {% for bot in botlist %}
+                    <div class="box">
+                        <img src="{{ bot.botImg.url }}">
+                        <div class="box-text">
+                            <div class="bot-name">{{ bot.name }}</div>
+                            <div class="bot-comment">{{ bot.comment }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+        </a>
+        
+        <div class="border1"></div>
+
+        <div class="posts-container">
+            <a class="posts-head" href="/board/category/1/">
+                <p>게시판</p>
+                <p>></p>
+            </a>
+            
+            <div class="post-container">
+                <div class="list">
+                    <div class="row1">
+                        <div class="post-title"><span>제목</span></div>
+                        <div class="date"><span>작성일</span></div>
+                    </div>
+                    {% for post in context %}
+                    <a class="pc-post" href="board/read/{{post.id}}">
+                        <div class="row">
+                            <div class="post-title">
+                                <span>
+                                    {% if post.imgUrl != Null %}
+                                    <img class="img" src="/static/img/pngwing.com.png"/>
+                                    {% endif %}
+                                    
+                                    {% if post.comment_count != 0 %}
+                                        {{ post.title }} [{{ post.comment_count }}]
+                                    {% else %}
+                                        {{ post.title }}
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="date">
+                                <span>
+                                    {% if post.date|date:"Y.m.d" == today|date:"Y.m.d" %}
+                                        <span>{{ post.date|date:"H:i" }}</span>
+                                    {% else %}
+                                        <span>{{ post.date|date:"Y.m.d" }}</span>
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a class="mobile-post" href="board/read/{{post.id}}" style="display: none;">
+                        <div class="post-title">
+                            <span>
+                                {% if post.imgUrl != Null %}
+                                <img class="img" src="/static/img/pngwing.com.png"/>
+                                {% endif %}
+                                
+                                {% if post.comment_count != 0 %}
+                                    {{ post.title }} [{{ post.comment_count }}]
+                                {% else %}
+                                    {{ post.title }}
+                                {% endif %}
+                            </span>
+                        </div>
+                    
+                        <div class="row3">
+                            <div class="author">작성자: {{ post.user }}</div>
+
+                            <div class="views">조회수: {{ post.counting }} |</div>
+
+                            <div class="likes">추천수: {{ post.likes }} |</div>
+
+                            <div class="date">
+                                <span>
+                                    {% if post.date|date:"Y.m.d" == today|date:"Y.m.d" %}
+                                        <span>{{ post.date|date:"H:i" }}</span>
+                                    {% else %}
+                                        <span>{{ post.date|date:"Y.m.d" }}</span>
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            
+        </div>
+    </div>
+{% endblock %}

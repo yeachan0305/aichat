@@ -1,0 +1,393 @@
+/* color
+배경 #111111
+서브 배경 #222222
+경계 #43494C
+폰트 #D3D3D3
+hover #333333
+visited #909090 */
+
+/* .container {
+  width: 977px;
+  height: 100vh;
+  background-color: #222222;
+  border: 1px solid #43494C;
+  
+  margin: 0 auto;
+  padding: 0;
+} */
+
+.head {
+  max-width: 1000px;
+}
+
+.content {
+  max-width: 1000px;
+  background-color: #222222;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.board-title {
+  width: 100%;
+  height: 100px;
+  color: #D3D3D3;
+  background-color: #222222;
+  border-bottom: 1px solid #43494C;
+  position: relative;
+
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.board-title .main {
+  position: absolute;
+  top: 50%;
+  left: 15px;
+  margin-top: -40px;
+  font-size: 50px;
+  /* border: 1px solid gray; */
+}
+
+.board-title .main a {
+  text-decoration: none;
+}
+
+.board-title .create {
+  position: absolute;
+  font-size: 20px;
+  right: 20px;
+  bottom: 20px;
+  padding: 5px;
+  border: 1px solid #43494C;
+}
+
+.create:hover {
+  background-color: #333333;
+}
+
+.create a{
+  color: #D3D3D3;
+  text-decoration: none;
+}
+
+.main a{
+  color: #D3D3D3;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 10px;
+}
+
+.list-container {
+  height: calc(100% - 100px);
+  margin: 0;
+  padding: 0;
+}
+
+.list {
+  width: 95%;
+
+  background-color: #222222;
+  color: #D3D3D3;
+  font-size: 15px;
+  margin: 0 auto;
+}
+
+.img {
+  width: 17px;
+  filter: invert(89%) sepia(0%) saturate(0%) hue-rotate(341deg) brightness(95%) contrast(95%);
+}
+
+.row , .row1 {
+  display: flex;
+  border-bottom: 1px solid #43494C;
+  height: 30px;
+  line-height: 30px;
+}
+
+.row1 {
+  background-color: #333333;
+}
+
+.row:hover {
+  background-color: #333333;
+}
+
+.list a {
+  color: #D3D3D3;
+  text-decoration: none;
+}
+
+.list a:visited {
+  color: #909090;
+  text-decoration: none;
+}
+
+.list .id {
+  width: 10%;
+  text-align: center;
+  text-overflow: ellipsis;
+}
+
+.list .title {
+  width: 50%;
+  float: left;
+  text-overflow: ellipsis;
+}
+
+.list .author {
+  width: 10%;
+  text-overflow: ellipsis;
+}
+
+.list .date {
+  width: 10%;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  text-overflow: ellipsis;
+}
+
+.list .views {
+  width: 10%;
+  text-align: center;
+}
+
+.list .likes {
+  width: 10%;
+  text-align: center;
+}
+
+.categories {
+  display: flex;
+  flex-direction: row;
+  width: 95%;
+  background-color: #292929;
+
+  margin: 0 auto;
+  z-index: 1;
+  justify-content: flex-start;
+}
+
+.categories .category-link {
+  margin: 4px;
+  margin-bottom: 0;
+  padding: 4px;
+  text-decoration: none;
+  color: #909090;
+  margin-left: 10px;
+}
+
+.categories .category-link.active{
+  border: 1px solid #43494C;
+  border-bottom: 1px solid #333333;
+  color: #D3D3D3;
+  background-color: #333333;
+  z-index: 2;
+}
+
+.title-category {
+  background-color: #43494C;
+  padding: 1px;
+  border-radius: 5px;
+  font-size: 12px;
+  align-items: center;
+  color: #D3D3D3;
+  margin-right: 4px;
+}
+
+/* 페이징 */
+.pagenation {
+  width: fit-content;
+  height: 40px;
+  display: flex;
+  list-style-type: none;
+  justify-content: center;
+  border-radius: 8px;
+  margin: 0 auto;
+  padding: 0;
+  font-weight: bold;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.page-number, .page-item-prev, .page-item-next {
+  width: 40px;
+  background-color: #222222;
+  border: 1px solid #222222;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+}
+
+.page-item-next a, .page-item-prev a{
+  text-decoration: none;
+  color: #d3d3d3;
+}
+
+.page-item-next.disabled a, .page-item-prev.disabled a{
+  color: #7c7c7c;
+  pointer-events: none;
+}
+
+.page-item-next, .page-item-next.disabled{
+  border-top-right-radius: 9999px;
+  border-bottom-right-radius: 9999px;
+}
+
+.page-item-prev, .page-item-prev.disabled{
+  border-top-left-radius: 9999px;
+  border-bottom-left-radius: 9999px;
+}
+
+.page-number a{
+  text-decoration: none;
+  color: #d3d3d3;
+}
+
+.page-number.active {
+  background-color: #1A1A1A;
+}
+
+.page-number.active:hover, .page-number:hover {
+  text-decoration: underline;
+  text-decoration-thickness : 5px;
+  background-color: #1A1A1A;
+}
+
+.sort {
+  display: flex;
+  flex-direction: row;
+  margin-left: auto;
+  height: 90%;
+  justify-items: center;
+  margin-right: 10px;
+  margin-top: 6px;
+}
+
+.sort-selct{
+  background-color: #292929;
+  color: #D3D3D3;
+}
+
+.sort-btn {
+  background-color: #292929;
+  color: #D3D3D3;
+  border: 1px solid rgb(118, 118, 118);
+}
+
+.sort-btn:hover {
+  background-color: #333333;
+  cursor: pointer;
+}
+
+@media (max-width:800px) {
+    /* .content {
+      height: 3000px;
+    } */
+    .row1 {
+      display: none;
+    }
+
+    .list {
+      width: 100%;
+    }
+
+    .board-title {
+      width: 100%;
+      height: 60px;
+
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+
+    .board-title .main {
+      height: fit-content;
+      font-size: 30px;
+      position: inherit;
+      margin: 0;
+      top: 0;
+      left: 0;
+      margin-left: 10px;
+    }
+    
+    .board-title .main a {
+      text-decoration: none;
+    }
+
+    .board-title .create {
+      position: inherit;
+      height: fit-content;
+      right: 0;
+      bottom: 0;
+
+      margin-left: auto;
+      margin-right: 10px;
+    }
+
+    .create a {
+      font-size: 20px;
+    }
+
+    .categories {
+      width: 100%;
+      background-color: #333333;
+    }
+
+    .category-link.active {
+      background-color: #222222 !important;
+      border-bottom: 0 !important;
+    }
+
+    .row, .row1 {
+      display: none;
+  }
+
+  .mobile-post {
+      width: calc(100% - 9px);
+      height: 42px;
+      padding: 6px;
+      padding-left: 9px;
+      padding-right: 0px;
+      border-bottom: 1px solid #43494C;
+
+      font-size: 15px;
+  }
+
+  .row3 {
+      height: fit-content;
+      display: flex;
+      flex-direction: row;
+
+      justify-content: flex-end;
+      font-size: 12px;
+      margin-top: 3px;
+      gap:10px;
+  }
+
+  .row3 .author {
+      margin-right: auto;
+  }
+
+  .mobile-post .post-title {
+      margin-left: 0;
+  }
+
+  .mobile-post .date {
+      width: fit-content;
+      margin-right: 10px;
+  }
+
+  .pc-post {
+      display: none !important;
+  }
+
+  .mobile-post {
+      display: flex !important;
+      flex-direction: column;
+  }
+
+  .list .author, .list .views, .list .likes, .list .date {
+    width: fit-content !important;
+  }
+}

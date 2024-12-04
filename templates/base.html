@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset='utf-8'>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="color-scheme" content="light">
+        
+        <title>{% block title %}{% endblock %}</title>
+
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'base_style.css' %}"/>
+
+        {% block extra_head %}{% endblock %}
+
+        <script src="https://kit.fontawesome.com/412d88d452.js" crossorigin="anonymous"></script>
+    </head>
+
+    <body class="{% if user.is_authenticated %}logged-in{% else %}logged-out{% endif %}">
+        <div class="grid-container">
+            {% if user.is_authenticated %}
+            <input type="checkbox" id="toggle" class="toggle_check" />
+            <label for="toggle" class="toggle_btn"><i class="fas fa-bars" style="color: #d3d3d3;"></i></label>
+            
+            <!-- 반투명 레이어 -->
+            <div class="overlay"></div>
+
+            <div class="nav">
+                <div class="nav-head">
+                    <div class="users">
+                        <div class="user-id">유저: {{ user.username }}</div>
+                        <form method="post" action="{% url 'users:logout' %}">
+                            {% csrf_token %}
+                            <button class="logout" type="submit">로그아웃</button>
+                        </form>
+                    </div>
+
+                    <a class="create-bot" href="/bot/create_bot/">봇 만들기</a>
+                </div>
+
+                <div class="nav-body">
+                    <!-- 사용자 채팅 목록 불러오기 -->
+                    {% for chat in chat_lists %}
+                        <a href="/chat/{{ user.id }}/{{ chat.bot_id }}/{{ chat.id }}">
+                        <div class="row4 {% if chat.id == current_chat_id %}active{% endif %}">
+                            <!-- 봇 정보 -->
+                            {% for bot in bot_lists %}
+                                {% if bot.id == chat.bot_id %}
+                                    <img src="{{ bot.botImg.url }}">
+                                    <div class="title">{{ bot.name }}</div>
+                                {% endif %}
+                            {% endfor %}
+
+                            <!-- 삭제 버튼 -->
+                            <button class="delete-btn" 
+                                data-chat-id="{{ chat.id }}" 
+                                data-chat-title="{{ bot.name }}">
+                                <span class="three-dots">⋮</span>
+                                <span class="trash-bin">🗑️</span>
+                            </button>
+                            
+                        </div>
+                        </a>
+                    {% endfor %}
+                </div>
+
+                <div class="nav-footer">
+                    <div class="logo"><a href="/"><img src="/static/img/logo2.png"></a></div>
+                </div>
+            </div>
+
+            <!-- 채팅 삭제 확인 모달 -->
+            <div id="deleteModal" class="delete-modal" style="display: none;">
+                <div class="delete-modal-content">
+                    <p id="delete-modal-text"></p>
+                    <form method="post" action="{% url 'chat:delete_chat' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="chat_id" id="modal-chat-id">
+                        <input type="hidden" name="current_chat_id" value="{{ current_chat_id }}">
+                        <button type="submit">확인</button>
+                        <button type="button" onclick="closeModal()">취소</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="container">
+                <div class="head">
+                    <div class="logo"><a href="/"><img src="/static/img/logo2.png"></a></div>
+                    <div class="right">
+                        <!-- 모바일용 검색 아이콘 -> 검색 페이지로 이동 혹은 모달 -->
+                        <button id="search-icon" class="search-icon" type="submit"><i class="fas fa-magnifying-glass" style="color: #d3d3d3;"></i></button>
+                        <div class="search">
+                            <!-- pc용 검색창 -->
+                            <form class="search-box" method="get">
+                                <button class="search-btn" type="submit"><i class="fas fa-magnifying-glass" style="color: #d3d3d3;"></i></button>
+                                <input class="search-txt" type="text" name="q" value="{{ search_query }}" placeholder="검색">
+                            </form>
+                        </div>
+
+                        <!-- 검색결과 -->
+                        {% if search_query %}
+                            <div class="search-result" id="search-result">
+                                {% if search_bot_results %}
+                                    <div class="search-result-head">봇 검색 결과</div>
+                                    {% for bot in search_bot_results %}
+                                        <a class="row1" id="chat-link" href="/chat/{{ user.id }}/{{ bot.id }}">
+                                            <img src="{{ bot.botImg.url }}">
+                                            <div class="column">
+                                                <div class="bot-name">{{ bot.name }}</div>
+                                                <div class="bot-comment">{{ bot.comment }}</div>
+                                            </div>
+                                        </a>
+                                    {% endfor %}
+                                {% endif %}
+
+                                {% if search_post_results %}
+                                    <div class="search-result-head">게시글 검색 결과</div>
+                                    {% for post in search_post_results %}
+                                        <a class="row2" href="/board/read/{{post.id}}">
+                                            <div class="post-title">{{ post.title }}</div>
+                                            <div class="post-data">{{ post.date|date:"Y-m-d H:i" }}</div>
+                                        </a>
+                                    {% endfor %}
+                                {% endif %}
+
+                                {% if not search_bot_results and not search_post_results %}
+                                    <p>검색 결과가 없습니다.</p>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+                        {% if user.is_authenticated %}
+                        
+                        {% else %}
+                        <button class="sign-in" type="button" onclick="location.href='/users/login/' ">로그인</button>
+                        <button class="join" type="button" onclick="location.href='/users/join/' ">가입하기</button>
+                        {% endif %}  
+                    </div>
+                    
+                </div>
+                <div class="content">
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
+        </div>
+
+        <script>
+            let userInteracted = false; // 사용자가 체크박스를 건드렸는지 여부를 추적하는 변수
+
+            const checkbox = document.getElementById('toggle');
+
+            const nav = document.querySelector('.nav');
+            const container = document.querySelector('.container');
+            const toggleBtn = document.querySelector('.toggle_btn');
+
+            // 페이지 로드 시 체크박스 상태를 복원
+            window.addEventListener('load', function() {
+                const savedState = localStorage.getItem('sidebarState');
+
+                // 전환 효과 비활성화
+                nav.classList.add('no-transition');
+                container.classList.add('no-transition');
+                toggleBtn.classList.add('no-transition');
+                
+                if (savedState !== null) {
+                    checkbox.checked = JSON.parse(savedState); // 저장된 상태를 복원
+                } else {
+                    // 사용자가 체크박스를 건드리지 않았다면 자동으로 크기 조절
+                    if (window.innerWidth <= 1020) {
+                        checkbox.checked = true;
+                    } else {
+                        checkbox.checked = false;
+                    }
+                }
+
+                // 50ms 후 전환 효과 다시 활성화
+                setTimeout(() => {
+                    nav.classList.remove('no-transition');
+                    container.classList.remove('no-transition');
+                    toggleBtn.classList.remove('no-transition');
+                }, 50); // 약간의 딜레이 후 전환 효과 복원
+
+            });
+
+            // 사용자가 체크박스를 클릭하면 상태를 저장하고 userInteracted를 true로 설정
+            checkbox.addEventListener('change', function() {
+                userInteracted = true;
+                localStorage.setItem('sidebarState', JSON.stringify(checkbox.checked)); // 상태 저장
+            });
+
+            // 창 크기 변경 시 체크박스 상태 업데이트
+            window.addEventListener('resize', function() {
+                if (!userInteracted) {
+                    if (window.innerWidth <= 1020) {
+                        checkbox.checked = true;
+                    } else {
+                        checkbox.checked = false;
+                    }
+                    localStorage.setItem('sidebarState', JSON.stringify(checkbox.checked)); // 상태 저장
+                }
+            });
+
+            document.addEventListener("DOMContentLoaded", () => {
+                const deleteButtons = document.querySelectorAll(".delete-btn");
+                const modal = document.getElementById("deleteModal");
+                const modalText = document.getElementById("delete-modal-text");
+                const modalChatId = document.getElementById("modal-chat-id");
+
+                deleteButtons.forEach(button => {
+                    button.addEventListener("click", (event) => {
+                        event.preventDefault(); // 링크 동작 방지
+
+                        // 해당 row4의 데이터 가져오기
+                        const chatId = button.getAttribute("data-chat-id");
+
+                        // 모달 내용 설정
+                        modalText.textContent = `해당 채팅을 삭제하시겠습니까?`;
+                        modalChatId.value = chatId;
+
+                        // 모달 표시
+                        modal.style.display = "flex";
+                    });
+                });
+            });
+
+            // 모달 닫기 함수
+            function closeModal() {
+                const modal = document.getElementById("deleteModal");
+                modal.style.display = "none";
+            }
+
+            // 검색창 위치 정하기 함수
+            const target = document.getElementById('search-icon');
+            const dependent = document.getElementById('search-result');
+
+            // 특정 요소(target)의 위치를 가져옴
+            const targetRect = target.getBoundingClientRect();
+
+            // 다른 요소(dependent)의 위치를 설정
+            dependent.style.top = `${targetRect.bottom + 65}px`; // target 아래로 10px
+            dependent.style.left = `${targetRect.left + 0}px`; // target 오른쪽으로 10px
+            
+            //검색창 이외 부분 클릭시에 검색창 제거
+            document.addEventListener("DOMContentLoaded", function () {
+            const section = document.getElementById('search-result');
+
+            if (section) {
+                // 섹션 외부 클릭 감지
+                document.addEventListener("click", function (event) {
+                    if (!section.contains(event.target)) {
+                        section.style.display = "none"; // 섹션 숨기기
+                        }
+                    });
+                }
+            });
+        </script>
+        {% block script %}
+        {% endblock %}
+    </body>
+</html>

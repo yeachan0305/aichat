@@ -1,0 +1,342 @@
+body, html {
+    padding: 0;
+    margin: 0;
+}
+
+.content {
+    height: 1800px;
+    background-color: #222222;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.main-container {
+    width: 75%;
+    height: calc(100% - 120px);
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    justify-content: flex-start;
+    margin: auto;
+    margin-top: 20px;
+    gap: 20px;
+}
+
+.box {
+    display: flex;
+    flex-direction: row;
+    width: 352px;
+    height: 112px;
+    padding: 16px;
+    border-radius: 8px;
+    margin: 0 auto;
+    background-color: #1a1a1a;
+}
+
+.box:hover {
+    background-color: #111111;
+    cursor: pointer;
+}
+
+.box img {
+    width: 112px;
+    height: 112px;
+    border-radius: 8px;
+}
+
+.box-text {
+    height: 112px;
+    margin-left: 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+.bot-name {
+    color: #d3d3d3;
+    font-weight: bold;
+    font-size: 30px;
+}
+
+.bot-comment {
+    color: #a3a2a2;
+    font-size: 18px;
+}
+
+/* 페이징 */
+.pagenation {
+    width: fit-content;
+    height: 40px;
+    display: flex;
+    list-style-type: none;
+    justify-content: center;
+    border-radius: 8px;
+    margin: 0 auto;
+    padding: 0;
+    font-weight: bold;
+}
+
+.page-number, .page-item-prev, .page-item-next {
+    width: 40px;
+    background-color: #222222;
+    border: 1px solid #222222;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+}
+
+.page-item-next a, .page-item-prev a{
+    text-decoration: none;
+    color: #d3d3d3;
+}
+
+.page-item-next.disabled a, .page-item-prev.disabled a{
+    color: #7c7c7c;
+    pointer-events: none;
+}
+
+.page-item-next, .page-item-next.disabled{
+    border-top-right-radius: 9999px;
+    border-bottom-right-radius: 9999px;
+}
+
+.page-item-prev, .page-item-prev.disabled{
+    border-top-left-radius: 9999px;
+    border-bottom-left-radius: 9999px;
+}
+
+.page-number a{
+    text-decoration: none;
+    color: #d3d3d3;
+}
+
+.page-number.active {
+    background-color: #1A1A1A;
+}
+
+.page-number.active:hover, .page-number:hover {
+    text-decoration: underline;
+    text-decoration-thickness : 5px;
+    background-color: #1A1A1A;
+}
+
+/* 모달 */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    background-color: #222222;
+    width: 40%;
+    min-width: 600px;
+    height: 350px;
+    color: #d3d3d3;
+    border-radius: 8px;
+    padding: 24px;
+}
+
+.row2 {
+    display: flex;
+    justify-content: flex-start;
+    margin-left: 20px;
+}
+
+.modal-botImg img{
+    width: fit-content;
+    width: 144px;
+    height: 144px;
+    border-radius: 8px;
+}
+
+.modal-content p {
+    width: fit-content;
+}
+
+.modal-name {
+    width: fit-content;
+    margin: 0;
+
+    margin-left: 20px;
+    margin-top: 10px;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.modal-comment{
+    width: fit-content;
+    margin: 0;
+
+    margin-left: 25px;
+    margin-top: 10px;
+    font-size: 20px;
+    font-weight: 300;
+}
+
+.modal .row1 {
+    display: flex;
+    flex-direction: row;
+    margin-left: 20px;
+}
+
+.modal-user {
+    font-weight: 400;
+    margin: 0;
+    margin-right: 20px;
+    padding: 2px;
+    color:#a5a5a5;
+}
+
+.modal-category {
+    margin: 0;
+    border: 1px solid #43494C;
+    padding: 2px;
+    border-radius: 8px;
+}
+
+.chat {
+    position: absolute;
+    bottom: 15px;
+    left: calc(50% - 125px);
+    width: 250px;
+    margin: 0;
+    height: 60px;
+    border-radius: 8px;
+    background-color: #1A1A1A;
+
+    text-decoration: none;
+    font-size: 30px;
+    color: #d3d3d3;
+    text-align: center;
+    align-items: center;
+    line-height: 60px;
+}
+
+.chat:hover {
+    background-color: #111111;
+}
+
+.categories {
+    display: flex;
+    flex-direction: row;
+    height: 50px;
+    align-items: center;
+    justify-content: center;
+    overflow-x: auto; /* 가로 스크롤 활성화 */
+    white-space: nowrap; /* 항목이 한 줄로 유지되도록 설정 */
+    scroll-behavior: smooth; /* 부드러운 스크롤 */
+    gap: 10px;
+}
+
+.category-link {
+    padding: 5px;
+    margin-top: 10px;
+    text-decoration: none;
+    border: 1px solid #43494C;
+    color: #d3d3d3;
+    border-radius: 12px;
+}
+
+.category-link.active {
+    background-color: #111111;
+}
+
+.category-link:hover {
+    cursor: pointer;
+}
+
+
+@media (min-width:1376px) {
+    .box {
+        width: 40%;
+    }
+}
+
+@media (max-width:1375px) {
+    .box {
+        width: 82%;
+    }
+
+    .main-container {
+        width: 100%;
+    }
+
+    .content {
+        height: auto;
+    }
+}
+
+@media (max-width:800px){
+    .box {
+        width: 327px !important;
+        height: 80px !important;
+        padding: 16px;
+    }
+
+    .box img {
+        width: 80px;
+        height: 80px;
+    }
+
+    .bot-name {
+        font-size: 18px;
+    }
+
+    .bot-comment {
+        font-size: 16px;
+    }
+
+    .posts-head {
+        height: 50px;
+        background-color: #333333;
+    }
+
+    .posts-head p {
+        margin: 0;
+        line-height: 50px;
+        margin-left: 15px;
+        margin-right: 15px;
+    }
+
+    .modal-content {
+        min-width: 0 !important;
+        width: 364px;
+        padding: 24px;
+
+    }
+
+    .modal-content a{
+        height: 40px;
+        line-height: 40px;
+        font-size: 20px;
+    }
+
+    .modal-content .row2, .modal-content .row1 {
+        margin: 0;
+    }
+
+    .modal-name {
+        font-size: 24px;
+        margin: 0;
+    }
+
+    .modal-comment {
+        font-size: 16px;
+        font-weight: normal;
+    }
+
+    .pagenation {
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+}

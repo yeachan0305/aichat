@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}글쓰기{% endblock %}
+
+{% block extra_head %}
+    {% load static %}
+        <link rel="stylesheet" href="{% static 'board/write_style.css' %}"/>
+{% endblock %}
+
+{% block content %}
+<div class="board-title">
+    <div class="main"><a href="/board/category/1/">게시판</a></div>
+</div>
+
+<div class="article">
+    <form class="form" action="" method="post">
+        {% csrf_token %}
+        {{form.category}}
+        {{form.title}}
+        {{form.body}}
+        <p><input id="forms" type="submit" value="작성"></p>
+    </form>
+</div>
+{% endblock %}
+
+{% block script %}
+{% endblock %}

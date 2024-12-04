@@ -1,0 +1,351 @@
+{% extends 'base.html' %}
+{% block title %}Aichat main{% endblock %}
+
+{% block extra_head %}
+    {% load static %}
+        <link rel="stylesheet" href="{% static 'chat/chat_style.css' %}"/>
+{% endblock %}
+
+{% block content %}
+    <div class="chat-head">
+        <img src="{{ bot.botImg.url }}">
+        <div class="bot-name">{{ bot.name }}</div>
+    </div>
+    <div class="chat-container">
+    
+        <div class="chat-body">
+            <!-- 이전 메세지 추가하기 -->
+            {% for message in messages %}
+                <div class="line">
+                    <span class="chat-box mine">{{ message.user }}</span>
+                </div>
+
+                <div class="assistant">
+                    <img src="{{ bot.botImg.url }}">
+                    
+                    <div class="row3">
+                        <div class="bot-name">{{ bot.name }}</div>
+                        <div class="line">
+                            <span class="chat-box">{{ message.assistant }}</span>
+                        </div>                
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="row">
+        <form id="chat-form">
+            {% csrf_token %}
+            <textarea id="user_input" name="user_input" class="chat-form-user-input"></textarea>
+            <button type="submit" class="chat-form-submit"><img src="/static/img/send.png"/></button>
+        </form>
+        <!-- 채팅 하단 옵션 토글 -->
+        <button class="toggleButton" id="toggleButton"><img src="/static/img/option3.png"</button>
+    </div>
+
+
+    <!-- 채팅 옵션 하단바 -->
+    <div class="chat-options" id="chat-options">
+        <div class="chat-options-option">
+            <!-- 프롬프트 -> 기본 프롬프트 앞에 "important 붙이고 삽입?", 폰트, 줄간격, 배경색, 폰트 컬러 -->
+            <h1>채팅 설정</h1>
+
+            <h2>모델</h2> 
+            <label for="llm-model">언어 모델 선택</label>
+            <select name="llm-model" id="llm-model">
+                <option value="gemini-1.5-pro-001">Google gemini-1.5-pro</option>
+                <option value="gemini-1.5-flash-001">Google gemini-1.5-flash</option>
+                <option value="gpt-3.5-turbo">OpenAI gpt-3.5-turbo</option>
+                <option value="gpt-4o-mini">OpenAI gpt-4o</option>
+            </select>
+
+            <div class="row4">
+                <p>커스텀 프롬프트</p> 
+                <button class="modal-button" data-text="사용자가 AI에게 전달할 지침이나 질문을 직접 작성하는 기능입니다.
+                이를 작성하면 기본 설정된 프롬프트 대신, 사용자가 입력한 내용이 AI 응답의 기준이 됩니다."><img src="/static/img/question.png"/></button>
+            </div>
+            <textarea class="custom-prompt" id="custom-prompt" placeholder="프롬프트를 입력해주세요."></textarea>
+
+            <h2>파라미터</h2>
+
+            <div class="row4">
+                <p class="temperature-p">온도: <span class="slider-value" id="temperature-value">1</span></p>
+                <button class="modal-button" data-text="생성되는 텍스트의 창의성을 조절하는 값입니다.
+                값이 높을수록 더 다양한 답변이 나오고, 낮을수록 더 예측 가능한 답변이 나옵니다."><img src="/static/img/question.png"/></button>
+            </div>
+            <input type="range" class="slider" id="temperature" name="temperature" min="0" max="2" step="0.01" value="1">
+
+            <div class="row4">
+                <p>Top P: <span class="slider-value" id="top-p-value">1</span></p>
+                <button class="modal-button" data-text="답변의 확률 분포를 제한하는 값입니다.
+                값이 1.0이면 전체 분포를 사용하고, 0.1이면 가장 높은 10% 확률의 단어만 선택합니다."><img src="/static/img/question.png"/></button>
+            </div>
+            <input type="range" class="slider" id="top-p" name="top-p" min="0" max="1" step="0.01" value="1">
+
+            <div class="row4">
+                <p>빈도 페널티: <span class="slider-value" id="frequency-penalty-value">0</span></p>
+                <button class="modal-button" data-text="이미 등장한 단어를 반복하지 않도록 페널티를 부여합니다.
+                값이 높을수록 동일한 단어의 반복이 줄어듭니다."><img src="/static/img/question.png"/></button>
+            </div>
+            <input type="range" class="slider" id="frequency-penalty" name="frequency-penalty" min="-2" max="2" step="0.01" value="0">
+
+            <div class="row4">
+                <p>프리센스 페널티: <span class="slider-value" id="presence-penalty-value">0</span></p>
+                <button class="modal-button" data-text="새로운 단어를 사용하도록 유도하는 값입니다.
+                값이 높을수록 답변에 새로운 주제가 포함될 가능성이 커집니다."><img src="/static/img/question.png"/></button>
+            </div>
+            <input type="range" class="slider" id="presence-penalty" name="presence-penalty" min="-2" max="2" step="0.01" value="0">
+        </div>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <p id="modal-text"></p>
+            <span class="close">&times;</span>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+<script>
+    // 채팅 세부 옵션 선택한 값 저장용 객체
+    const userSelections = {
+        model: "gemini-1.5-pro-001",       // 선택된 모델
+        prompt: "",       // 입력된 프롬프트
+        temperature: "1",
+        top_p: "1",
+        frequency_penalty: "0",
+        presence_penalty: "0",
+    };
+
+    document.querySelectorAll('.chat-box').forEach(chatbox => {
+        // chatbox가 비어 있으면 display: none 적용
+        if (!chatbox.innerHTML.trim()) {
+            chatbox.style.display = 'none';
+        }
+    });
+
+    // MutationObserver로 DOM 변경 감지
+    const observer = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+            mutation.addedNodes.forEach(node => {
+                if (node.nodeType === 1) { // 요소 노드인지 확인
+                    // 새로 추가된 노드가 .chat-box를 포함하는지 확인
+                    if (node.querySelectorAll) {
+                        // 추가된 노드 내부에 있는 .chat-box 요소 처리
+                        node.querySelectorAll('.chat-box').forEach(chatbox => {
+                            chatbox.innerHTML = chatbox.innerHTML.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                        });
+                    }
+
+                    // 새로 추가된 노드가 .chat-box인 경우 직접 처리
+                    if (node.classList && node.classList.contains('chat-box')) {
+                        node.innerHTML = node.innerHTML.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                    }
+                }
+            });
+        });
+    });
+
+    // 감시 시작
+    observer.observe(document.body, {
+        childList: true, // 자식 노드 추가/제거 감지
+        subtree: true    // 하위 트리의 변경도 감지
+    });
+
+    // 초기 로딩 시 기존 .chat-box 처리
+    document.querySelectorAll('.chat-box').forEach(chatbox => {
+        chatbox.innerHTML = chatbox.innerHTML.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    });
+
+    // 슬라이더 값을 업데이트하는 공통 함수
+    function updateSliderValue(sliderId, valueElementId, property) {
+        const slider = document.getElementById(sliderId);
+        const valueElement = document.getElementById(valueElementId);
+
+        // 슬라이더 값 변경 시 실시간으로 업데이트
+        slider.addEventListener('input', () => {
+            valueElement.textContent = slider.value;
+            userSelections[property] = slider.value;
+        });
+    }
+
+    // 각 슬라이더에 대해 공통 함수 적용
+    updateSliderValue('temperature', 'temperature-value', "temperature");
+    updateSliderValue('top-p', 'top-p-value', "top_p");
+    updateSliderValue('frequency-penalty', 'frequency-penalty-value', "frequency_penalty");
+    updateSliderValue('presence-penalty', 'presence-penalty-value', "presence_penalty");
+
+    // 요소 선택
+    const modelSelect = document.getElementById('llm-model');
+    const customPrompt = document.getElementById('custom-prompt');
+
+    // 이벤트 리스너: 선택된 모델 저장
+    modelSelect.addEventListener('change', () => {
+        userSelections.model = modelSelect.value;
+    });
+
+    // 이벤트 리스너: 프롬프트 저장
+    customPrompt.addEventListener('input', () => {
+        userSelections.prompt = customPrompt.value;
+    });
+
+    //메세지 form
+    document.getElementById('chat-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const container = document.querySelector('.chat-container');
+        
+        // html에 유저 메세지 추가
+        var template = `<div class="line">
+                <span class="chat-box mine">${ document.querySelector('#user_input').value }</span>
+            </div>`
+        document.querySelector('.chat-body').insertAdjacentHTML('beforeend', template)
+
+        // 로딩 이미지 추가
+        var loadingTemplate = `<div class="line loading">
+            <div class="assistant">
+                    <img src="{{ bot.botImg.url }}">
+                    <div class="row3">
+                        <div class="bot-name">{{ bot.name }}</div>
+                        <div class="line">
+                            <span class="chat-box"><img src="/static/img/loading.gif"/></span>
+                    </div>
+                </div>                
+            </div>
+            </div>`;
+        document.querySelector('.chat-body').insertAdjacentHTML('beforeend', loadingTemplate);
+
+        const userInput = document.getElementById('user_input').value;
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        fetch(window.location.href, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken,
+            },
+            body: JSON.stringify({
+                user_input: userInput,
+                selected_model: userSelections.model,
+                custom_prompt: userSelections.prompt,
+                temperature: userSelections.temperature,
+                top_p: userSelections.top_p,
+                frequency_penalty: userSelections.frequency_penalty,
+                presence_penalty: userSelections.presence_penalty,
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            // 로딩 이미지 제거
+            const loadingElement = document.querySelector('.loading');
+            if (loadingElement) {
+                loadingElement.remove();
+            }
+
+            var template = `<div class="assistant">
+                    <img src="{{ bot.botImg.url }}">
+                    
+                    <div class="row3">
+                        <div class="bot-name">{{ bot.name }}</div>
+                        <div class="line">
+                            <span class="chat-box">${ data.ai_response }</span>
+                        </div>                
+                    </div>
+                </div>`
+            document.querySelector('.chat-body').insertAdjacentHTML('beforeend', template)
+        })
+        .catch(error => {
+            // 로딩 이미지 제거
+            const loadingElement = document.querySelector('.loading');
+            if (loadingElement) {
+                loadingElement.remove();
+            }
+
+            console.error("Error:", error)
+        });
+
+        container.scrollTop = container.scrollHeight;
+
+        //입력값 초기화
+        document.querySelector('#user_input').value = "";
+
+    });
+    
+    // 제출 버튼 말고 엔터로도 입력하는 트리거  
+    document.getElementById('user_input').addEventListener('keydown', function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            document.getElementById('chat-form').dispatchEvent(new Event('submit'));
+        }
+    });
+
+    // 페이지 로딩될때 제일 아래서부터 시작 (최근 대화목록으로 자동 스크롤)
+    window.onload = function() {
+        const container = document.querySelector('.chat-container');
+        container.scrollTop = container.scrollHeight;
+    };
+
+    //채팅 옵션 사이드바 토글버튼
+    const button = document.getElementById('toggleButton');
+    const sidebar = document.getElementById('chat-options');
+
+    button.addEventListener('click', () => {
+        event.stopPropagation(); // 이벤트 전파 방지
+        sidebar.classList.toggle('open'); // open 클래스 토글
+    });
+
+    //채팅 옵션 사이드바 이외 부분 클릭시에 검색창 제거
+    document.addEventListener("DOMContentLoaded", function () {
+        const section = document.getElementById('chat-options');
+
+        if (section) {
+            // 섹션 외부 클릭 감지
+            document.addEventListener("click", function (event) {
+                if (!section.contains(event.target)) {
+                    section.classList.remove('open'); // 섹션 숨기기
+                    }
+                });
+            }
+        });
+    
+    // 요소 선택
+    const modal = document.getElementById('modal');
+    const modalText = document.getElementById('modal-text');
+    const closeModalButton = document.querySelector('.close');
+    const modalButtons = document.querySelectorAll('.modal-button');
+
+    // 모달 열기 함수
+    function openModal(text) {
+        modalText.textContent = text; // 텍스트 설정
+        modal.style.display = 'flex'; // 모달 보이기
+    }
+
+    // 모달 닫기 함수
+    function closeModal() {
+        modal.style.display = 'none'; // 모달 숨기기
+    }
+
+    // 버튼 클릭 이벤트 추가
+    modalButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const text = button.getAttribute('data-text'); // 버튼의 data-text 값 읽기
+            openModal(text); // 모달 열기
+        });
+    });
+
+    // 닫기 버튼 동작
+    closeModalButton.addEventListener('click', closeModal);
+
+    // 모달 외부를 클릭하면 닫기
+    window.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+</script>
+{% endblock %}
+
+<!-- 입력 -> 입력값 html 추가 -> api 요청 -> 
+입력값이랑 api 반환값 db에 저장 -> api 반환값 html 추가 -->

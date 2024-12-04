@@ -1,0 +1,45 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    background-color: #111111;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; 
+    color: #d3d3d3;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    width: 500px;
+    height: 500px;
+    background-color: #222222;
+    border-radius: 8px;
+}
+
+.row{
+    display: flex;
+    color: #d3d3d3;
+}
+
+h {
+    font-size: 45px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+p {
+    font-size: 20px;
+    margin-bottom: 5px;
+}
+
+form {
+    width: 200px;
+}

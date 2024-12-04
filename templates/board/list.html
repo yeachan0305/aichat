@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% block title %}글목록{% endblock %}
+
+{% block extra_head %}
+    {% load static %}
+        <link rel="stylesheet" href="{% static 'board/list_style.css' %}"/>
+{% endblock %}
+
+{% block content %}
+<div class="board-title">
+    <div class="main"><a href="/board/category/1">게시판</a></div>
+    {% if user.is_authenticated %}
+        <div class="create"><a href="/board/write/">글쓰기</a></div>
+    {% endif %}
+</div>
+
+<div class="list-container">
+    <div class="categories">
+        {% for category in categories %}
+            {% if category.id == category_id %}
+                {% if category.id == 1 %}
+                <a class="category-link active" href="/board/category/1">전체</a>
+                {% else %}
+                    <a class="category-link active" href="/board/category/{{ category.id }}">{{ category.name }}</a>
+                {% endif %}
+
+            {% else %}
+                {% if category.id == 1 %}
+                <a class="category-link" href="/board/category/1">전체</a>
+                {% else %}
+                    <a class="category-link" href="/board/category/{{ category.id }}">{{ category.name }}</a>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+
+        <div class="sort">
+            <form class="sort-form" method="get">
+                <select name="sort_by" id="sort_by">
+                    <option value="latest" {% if sort_by == 'latest' %}selected{% endif %}>최근순</option>
+                    <option value="views" {% if sort_by == 'views' %}selected{% endif %}>조회수순</option>
+                    <option value="likes" {% if sort_by == 'likes' %}selected{% endif %}>추천순</option>
+                </select>
+                <button>조회</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="list">
+        <div class="row1">
+            <div class="id"><span>번호</span></div>
+            <div class="title"><span>제목</span></div>
+            <div class="author"><span>작성자</span></div>
+            <div class="date"><span>작성일</span></div>
+            <div class="views"><span>조회수</span></div>
+            <div class="likes"><span>추천수 </span></div>       
+        </div>
+        {% for post in context %}
+        <a class="pc-post" href="/board/read/{{post.id}}">
+            <div class="row">
+                <div class="id"><span>{{ post.id }}</span></div>
+
+                <div class="title">
+                    {% if post.category.id == 1 %}
+                    {% else %}
+                        <span class="title-category">{{ post.category.name }}</span>
+                    {% endif %}
+                    <span>
+                        <!-- 추가 해야함!! -->
+                        {% if post.imgUrl != Null %}
+                        <img class="img" src="/static/img/pngwing.com.png"/>
+                        {% endif %}
+                        
+                        {% if post.comment_count != 0 %}
+                            {{ post.title }} [{{ post.comment_count }}]
+                        {% else %}
+                            {{ post.title }}
+                        {% endif %}
+                    </span>
+                </div>
+
+                <div class="author">{{ post.user }}</div>
+
+                <div class="date">
+                    <span>
+                        {% if post.date|date:"Y.m.d" == today|date:"Y.m.d" %}
+                            <span>{{ post.date|date:"H:i" }}</span>
+                        {% else %}
+                            <span>{{ post.date|date:"Y.m.d" }}</span>
+                        {% endif %}
+                    </span>
+                </div>
+
+                <div class="views">{{ post.counting }}</div>
+
+                <div class="likes">{{ post.likes }}</div>
+            </div>
+        </a>
+
+        <a class="mobile-post" href="/board/read/{{post.id}}" style="display: none;">
+            <div class="post-title">
+                {% if post.category.id == 1 %}
+                {% else %}
+                    <span class="title-category">{{ post.category.name }}</span>
+                {% endif %}
+                <span>
+                    {% if post.imgUrl != Null %}
+                    <img class="img" src="/static/img/pngwing.com.png"/>
+                    {% endif %}
+                    
+                    {% if post.comment_count != 0 %}
+                        {{ post.title }} [{{ post.comment_count }}]
+                    {% else %}
+                        {{ post.title }}
+                    {% endif %}
+                </span>
+            </div>
+        
+            <div class="row3">
+                <div class="author">작성자: {{ post.user }}</div>
+
+                <div class="views">조회수: {{ post.counting }} |</div>
+
+                <div class="likes">추천수: {{ post.likes }} |</div>
+
+                <div class="date">
+                    <span>
+                        {% if post.date|date:"Y.m.d" == today|date:"Y.m.d" %}
+                            <span>{{ post.date|date:"H:i" }}</span>
+                        {% else %}
+                            <span>{{ post.date|date:"Y.m.d" }}</span>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    
+    <ul class="pagenation">
+        {% if context.has_previous %}
+        <li class="page-item-prev">
+                <a class="page-link" href="?page={{ context.previous_page_number }}"><</a>
+        </li>
+        {% else %}
+        <li class="page-item-prev disabled">
+            <a class="page-link" aria-disabled="true" href="#"><</a>
+        </li>
+        {% endif %}
+
+        {% for page_number in context.paginator.page_range %}
+        {% if page_number >= context.number|add:-5 and page_number <= context.number|add:5 %}
+        {% if page_number == context.number %}
+        <li class="page-number active" aria-current="page">
+            <a class="page-link" href="?page={{ page_number }}">{{ page_number }}</a>
+        </li>
+        {% else %}
+        <li class="page-number">
+            <a class="page-link" href="?page={{ page_number }}">{{ page_number }}</a>
+        </li>
+        {% endif %}
+        {% endif %}
+        {% endfor %}
+
+        {% if context.has_next %}
+        <li class="page-item-next">
+                <a class="page-link" href="?page={{ context.next_page_number }}">></a>
+        </li>
+        {% else %}
+        <li class="page-item-next disabled">
+            <a class="page-link" aria-disabled="true" href="#">></a>
+        </li>
+        {% endif %}
+    </ul>
+</div>
+{% endblock %}
+
+{% block script %}
+{% endblock %}

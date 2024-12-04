@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Aichat main{% endblock %}
+
+{% block extra_head %}
+    {% load static %}
+        <link rel="stylesheet" href="{% static 'bot/create_bot_style.css' %}"/>
+{% endblock %}
+
+{% block content %}
+<div class="create-bot-head">
+    <div class="create-bot-head-p">
+        봇 만들기
+    </div>
+</div>
+
+<form class="create-bot-body" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="create-bot-title">이미지</div>
+    <div class="create-bot-botImgform">{{ form.botImg }}</div>
+
+    <div class="create-bot-title">이름</div>
+    <div class="create-bot-nameform">{{ form.name }}</div>
+
+    <div class="create-bot-title">봇 카테고리</div>
+    <div class="create-bot-category">{{ form.category }}</div>
+    
+    <div class="create-bot-title">봇 설명</div>
+    <div class="create-bot-descriptform">{{ form.descript }}</div>
+
+    <div class="create-bot-title">첫 메세지</div>
+    <div class="create-bot-firstMessageform">{{ form.firstMessage }}</div>
+
+    <div class="create-bot-title">봇 소개</div>
+    <div class="create-bot-commentform">{{ form.comment }}</div>
+
+    <button class="create-bot-button" type="submit">봇 만들기</button>
+</form>
+{% endblock %}
+
+{% block script %}
+{% endblock %}

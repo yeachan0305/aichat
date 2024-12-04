@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% block title %}bot list{% endblock %}
+
+{% block extra_head %}
+    {% load static %}
+        <link rel="stylesheet" href="{% static 'bot/bot_list_style.css' %}"/>
+{% endblock %}
+
+{% block content %}
+    <div class="categories">
+        {% if not category_id %}
+            <a class="category-link active" href="/bot/lists/">전체</a>
+        {% else %}
+            <a class="category-link" href="/bot/lists/">전체</a>
+        {% endif %}
+
+        {% for category in categories %}
+            {% if category.id == category_id %}
+                <a class="category-link active" href="/bot/lists/category/{{ category.id }}">{{ category.name }}</a>
+            {% else %}
+                <a class="category-link" href="/bot/lists/category/{{ category.id }}">{{ category.name }}</a>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <div class="main-container">
+        {% for bot in context %}
+        <div class="box" 
+            data-info='{
+                "botImg": "{{ bot.botImg.url }}",
+                 "name": "{{ bot.name }}",
+                  "comment": "{{ bot.comment }}",
+                  "botId": "{{ bot.id }}",
+                  "user": "Made by {{ bot.user }}",
+                  "category": "#{{ bot.category }}"
+                 }'
+            role="button">
+
+            <img src="{{ bot.botImg.url }}">
+            <div class="box-text">
+                <div class="bot-name">{{ bot.name }}</div>
+                <div class="bot-comment">{{ bot.comment }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <ul class="pagenation">
+        {% if context.has_previous %}
+        <li class="page-item-prev">
+                <a class="page-link" href="?page={{ context.previous_page_number }}"><</a>
+        </li>
+        {% else %}
+        <li class="page-item-prev disabled">
+            <a class="page-link" aria-disabled="true" href="#"><</a>
+        </li>
+        {% endif %}
+
+        {% for page_number in context.paginator.page_range %}
+        {% if page_number >= context.number|add:-5 and page_number <= context.number|add:5 %}
+        {% if page_number == context.number %}
+        <li class="page-number active" aria-current="page">
+            <a class="page-link" href="?page={{ page_number }}">{{ page_number }}</a>
+        </li>
+        {% else %}
+        <li class="page-number">
+            <a class="page-link" href="?page={{ page_number }}">{{ page_number }}</a>
+        </li>
+        {% endif %}
+        {% endif %}
+        {% endfor %}
+
+        {% if context.has_next %}
+        <li class="page-item-next">
+                <a class="page-link" href="?page={{ context.next_page_number }}">></a>
+        </li>
+        {% else %}
+        <li class="page-item-next disabled">
+            <a class="page-link" aria-disabled="true" href="#">></a>
+        </li>
+        {% endif %}
+    </ul>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <p id="modal-name" class="modal-name"></p>
+
+            <div class="row2">
+                <p id="modal-botImg" class="modal-botImg"></p>
+                <p id="modal-comment" class="modal-comment"></p>
+            </div>
+
+            <div class="row1">
+                <p id="modal-user" class="modal-user"></p>
+                <p id="modal-category" class="modal-category"></p>
+            </div>
+
+            <a class="chat" id="chat-link" href="#">채팅하기</a>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const modal = document.getElementById('modal');
+        const modalBotImg = document.getElementById('modal-botImg');
+        const modalBotName = document.getElementById('modal-name');
+        const modalComment = document.getElementById('modal-comment');
+        const modalUser = document.getElementById('modal-user');
+        const modalCategory = document.getElementById('modal-category');
+        const chatLink = document.querySelector('.chat'); //링크 요소 선택
+
+        document.querySelectorAll('.box').forEach(item => {
+            item.addEventListener('click', function() {
+                const botData = JSON.parse(this.getAttribute('data-info'));
+
+                modalBotImg.innerHTML = `<img src="${botData.botImg}" alt="${botData.name}">`;
+                modalBotName.textContent = botData.name;
+                modalComment.textContent = botData.comment;
+                modalUser.textContent = botData.user;
+                modalCategory.textContent = botData.category;
+                
+                const userId = "{{ user.id }}";
+                chatLink.href = `/chat/${userId}/${botData.botId}`;
+
+                modal.style.display = 'flex';
+            });
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        const isAuthenticated = {{ user.is_authenticated|yesno:"true,false" }}; 
+
+        // 특정 링크를 선택
+        const protectedLink = document.getElementById("chat-link");
+
+        // 클릭 이벤트 설정
+        protectedLink.addEventListener("click", function (event) {
+            if (!isAuthenticated) {
+                // 로그인이 안 되어 있을 경우 경고창 표시
+                event.preventDefault(); // 링크 이동 중단
+                alert("로그인 후 이용 가능합니다.");
+            }
+        });
+            
+    });
+</script>
+{% endblock %}
