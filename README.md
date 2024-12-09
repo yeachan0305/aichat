@@ -18,7 +18,7 @@
 </h1>
 
 <h1 align="center">
-  '사용자가 원하는대로 커스텀 가능한 자유도 높은 AI 채팅 서비스'
+  '사용자가 원하는대로 설정 가능한 자유도 높은 AI 채팅 서비스'
 </h1><br>
 
 ![메인](https://github.com/user-attachments/assets/b006ac51-35f5-49d2-9984-45e1582f09be)
